@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebRTC Test</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"/>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1 style="text-align: center; margin: 15px 10px 30px 10px">WebRTC Spring Boot</h1>
+
+<div id="roomConfig" class="d-flex flex-column align-items-center mb-3">
+    <div class="input-group input-group-lg mb-3" style="max-width: 400px">
+        <input id="roomName" type="text" class="form-control form-control-lg" placeholder="Enter room" />
+    </div>
+    <div class="d-flex justify-content-center w-100 mt-3">
+        <button id="btnConnect" class="btn btn-primary btn-lg me-2" type="button">Join Room</button>
+        <button id="btnCreate" class="btn btn-primary btn-lg" type="button">Create Meeting</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $("#btnConnect").on("click", () => {
+        let roomNo = $("#roomName").val();
+        let url = `http://localhost:3030/${roomNo}`;
+        window.location.href = url;
+    });
+    $("#btnCreate").on("click", () => {
+        let url = `http://localhost:3030/`;
+        window.location.href = url;
+    });
+</script>
+</body>
+</html>
