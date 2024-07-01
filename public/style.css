@@ -89,6 +89,7 @@ video {
   padding: 10px;
   align-self: center;
   border-radius: 10px;
+  cursor: pointer;
 }
 .main__header {
   color: #f5f5f5;
