@@ -15,6 +15,11 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
       const ROOM_ID = "<%= roomId %>";
+      let IS_SHOW_CHAT = JSON.parse("<%= isShowChat %>");
+      const USER_ID = "<%= uId %>";
+      const USER_NAME = "<%= userName %>";
+      const START_TIME = "<%= startTime %>";
+      const END_TIME = "<%= endTime %>";
     </script>
   </head>
   <body>
@@ -44,23 +49,23 @@
           </div>
 
           <div class="main__controls_block">
-            <div class="main__controls_button">
+            <!-- <div class="main__controls_button">
               <i class="fa fa-shield"></i>
               <span>Security</span>
             </div>
             <div class="main__controls_button">
               <i class="fa fa-users"></i>
               <span>Participants</span>
-            </div>
-            <div class="main__controls_button">
+            </div> -->
+            <div class="main__controls_button" id="toggleButton">
               <i class="fa fa-comment"></i>
               <span>Chat</span>
             </div>
           </div>
 
           <div class="main__controls_block">
-            <div class="main__controls_button leaveMeeting" id="leave-meeting">
-              <i class="fa fa-times"></i>
+            <div class="leaveMeeting" id="leave-meeting">
+              <!-- <i class="fa fa-times"></i> -->
               <span class="">Leave Meeting</span>
             </div>
           </div>
@@ -79,6 +84,11 @@
             id="chat_message"
             placeholder="Type message here.."
           />
+          <label for="fileInput" class="fa fa-paper-plane send-icon">
+          </label>
+          <input type="file" id="fileInput" style="display: none;">
+          <a href="#" id="fileDownloadLink" class="file-download-link" style="display: none;" download></a>
+          <!-- <i class="fa fa-paper-plane send-icon" id="sendIcon"></i> -->
         </div>
       </div>
     </div>

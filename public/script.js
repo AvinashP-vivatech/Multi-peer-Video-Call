@@ -4,8 +4,11 @@ const all_messages = document.getElementById("all_messages");
 const main__chat__window = document.getElementById("main__chat__window");
 const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
+const fileInput = document.getElementById('fileInput');
 myVideo.muted = true;
 let tempClientId;
+const baseURL = "http://139.84.168.101";
+const port = 3030;
 const allpeers = {};
 
 var peer = new Peer(undefined, {
@@ -52,9 +55,9 @@ navigator.mediaDevices
     });
 
     socket.on("createMessage", (msg) => {
-      console.log(msg);
+      console.log(msg, "messager name :", USER_NAME);
       let li = document.createElement("li");
-      li.innerHTML = msg;
+      li.innerHTML = `${USER_NAME}: ${msg}`; 
       all_messages.append(li);
       main__chat__window.scrollTop = main__chat__window.scrollHeight;
     });
@@ -96,8 +99,9 @@ socket.on("test-disconnect", (userId) => {
 
 peer.on("open", (id) => {
   console.log("Peer ID: ", id, " joined Room ID: ", ROOM_ID);
+  console.log("ID name : ", USER_NAME)
   tempClientId = id;
-  socket.emit("join-room", ROOM_ID, id);
+  socket.emit("join-room", ROOM_ID, id, IS_SHOW_CHAT, USER_ID, USER_NAME, START_TIME, END_TIME);
 });
 
 // CHAT
@@ -175,9 +179,61 @@ const setMuteButton = () => {
   <span>Mute</span>`;
   document.getElementById("muteButton").innerHTML = html;
 };
+
 $("#leave-meeting").on("click", () => {
   const uId = document.querySelectorAll('video')[0].getAttribute('data-peer-id');
   console.log("Video thumbnail to remove: ", uId);
-  let url = `http://localhost:3030/homepage.html`;
+  let url = `${baseURL}:${port}/homepage.html`;
   window.location.href = url;
 });
+fileInput.addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function() {
+      const fileInfo = {
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        fileData: reader.result
+      };
+
+      socket.emit('fileUpload', fileInfo);
+    };
+    reader.onerror = function(error) {
+      console.error('Error reading file:', error);
+    };
+  }
+});
+const fileDownloadLink = document.getElementById('fileDownloadLink');
+socket.on("fileUploaded", (file)=>{
+  console.log(file);
+  let li = document.createElement("li");    
+  all_messages.append(li);
+  main__chat__window.scrollTop = main__chat__window.scrollHeight;
+
+  const downloadLink = document.createElement('a');
+  downloadLink.href = file.fileData;
+  downloadLink.setAttribute('download', file.fileName);
+  downloadLink.innerHTML = `${USER_NAME}: ${file.fileName}`;
+
+  li.appendChild(downloadLink);
+});
+
+function toggleChat() {
+  IS_SHOW_CHAT = !IS_SHOW_CHAT; // Toggle between "true" and "false"
+  updateUI();
+}
+
+function updateUI() {
+  const mainRight = document.querySelector('.main__right');
+  mainRight.classList.toggle('show_main__right', IS_SHOW_CHAT);
+
+  const mainLeft = document.querySelector('.main__left');
+  mainLeft.classList.toggle('flex_full', !IS_SHOW_CHAT);
+  // console.log("isShowChat", isShowChat, uId, userName, startTime, endTime,);
+}
+
+const toggleButton = document.getElementById('toggleButton');
+toggleButton.addEventListener('click', toggleChat);
