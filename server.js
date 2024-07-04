@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const server = require("https");
+const fs = require('fs');
 const options = {
   key: fs.readFileSync('./ssl/privkey.pem'),
   cert: fs.readFileSync('./ssl/fullchain.pem')
@@ -8,7 +9,6 @@ const options = {
 const { v4: uuidv4 } = require("uuid");
 const io = require("socket.io")(server);
 const path = require('path');
-const fs = require('fs');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 // Peer
