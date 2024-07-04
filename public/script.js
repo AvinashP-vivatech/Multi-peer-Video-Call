@@ -7,7 +7,7 @@ const myVideo = document.createElement("video");
 const fileInput = document.getElementById('fileInput');
 myVideo.muted = true;
 let tempClientId;
-const baseURL = "https://139.84.168.101";
+const baseURL = "https://mhealth.vivatechrnd.com";
 const port = 3030;
 const allpeers = {};
 
