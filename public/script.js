@@ -7,7 +7,7 @@ const myVideo = document.createElement("video");
 const fileInput = document.getElementById('fileInput');
 myVideo.muted = true;
 let tempClientId;
-const baseURL = "http://139.84.168.101";
+const baseURL = "https://139.84.168.101";
 const port = 3030;
 const allpeers = {};
 
@@ -32,7 +32,7 @@ navigator.mediaDevices
   .then((stream) => {
     myVideoStream = stream;
     addVideoStream(myVideo, stream, tempClientId);
-    tempClientId=null;
+    tempClientId = null;
 
     peer.on("call", (call) => {
       call.answer(stream);
@@ -49,15 +49,14 @@ navigator.mediaDevices
 
     document.addEventListener("keydown", (e) => {
       if (e.which === 13 && chatInputBox.value != "") {
-        socket.emit("message", chatInputBox.value);
+        socket.emit("message", { text: chatInputBox.value, username: USER_NAME });
         chatInputBox.value = "";
       }
     });
 
-    socket.on("createMessage", (msg) => {
-      console.log(msg, "messager name :", USER_NAME);
+    socket.on("createMessage", (messageData) => {
       let li = document.createElement("li");
-      li.innerHTML = `${USER_NAME}: ${msg}`; 
+      li.innerHTML = `${messageData.username}: ${messageData.text}`;
       all_messages.append(li);
       main__chat__window.scrollTop = main__chat__window.scrollHeight;
     });
@@ -186,6 +185,7 @@ $("#leave-meeting").on("click", () => {
   let url = `${baseURL}:${port}/homepage.html`;
   window.location.href = url;
 });
+
 fileInput.addEventListener('change', function(event) {
   const file = event.target.files[0];
   if (file) {
@@ -196,7 +196,8 @@ fileInput.addEventListener('change', function(event) {
         fileName: file.name,
         fileType: file.type,
         fileSize: file.size,
-        fileData: reader.result
+        fileData: reader.result,
+        username: USER_NAME  // Include the sender's username
       };
 
       socket.emit('fileUpload', fileInfo);
@@ -206,19 +207,18 @@ fileInput.addEventListener('change', function(event) {
     };
   }
 });
-const fileDownloadLink = document.getElementById('fileDownloadLink');
-socket.on("fileUploaded", (file)=>{
-  console.log(file);
-  let li = document.createElement("li");    
-  all_messages.append(li);
-  main__chat__window.scrollTop = main__chat__window.scrollHeight;
 
+const fileDownloadLink = document.getElementById('fileDownloadLink');
+socket.on("fileUploaded", (fileInfo) => {
+  let li = document.createElement("li");
   const downloadLink = document.createElement('a');
-  downloadLink.href = file.fileData;
-  downloadLink.setAttribute('download', file.fileName);
-  downloadLink.innerHTML = `${USER_NAME}: ${file.fileName}`;
+  downloadLink.href = fileInfo.fileData;
+  downloadLink.setAttribute('download', fileInfo.fileName);
+  downloadLink.innerHTML = `${fileInfo.username}: ${fileInfo.fileName}`;  // Display the sender's username
 
   li.appendChild(downloadLink);
+  all_messages.append(li);
+  main__chat__window.scrollTop = main__chat__window.scrollHeight;
 });
 
 function toggleChat() {
