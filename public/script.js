@@ -7,7 +7,8 @@ const myVideo = document.createElement("video");
 const fileInput = document.getElementById('fileInput');
 myVideo.muted = true;
 let tempClientId;
-const baseURL = "https://mhealth.vivatechrnd.com";
+const baseURL = "https://mhealth.vivatechrnd.com"; //for server
+// const baseURL = "http://localhost";//for local
 const port = 3030;
 const allpeers = {};
 
@@ -99,6 +100,9 @@ socket.on("test-disconnect", (userId) => {
 peer.on("open", (id) => {
   console.log("Peer ID: ", id, " joined Room ID: ", ROOM_ID);
   console.log("ID name : ", USER_NAME)
+  console.log("END_TIME: ", END_TIME); 
+  const currentTime = new Date();
+  console.log(currentTime, "current-time")
   tempClientId = id;
   socket.emit("join-room", ROOM_ID, id, IS_SHOW_CHAT, USER_ID, USER_NAME, START_TIME, END_TIME);
 });
@@ -173,6 +177,7 @@ const setUnmuteButton = () => {
   <span class="unmute">Unmute</span>`;
   document.getElementById("muteButton").innerHTML = html;
 };
+
 const setMuteButton = () => {
   const html = `<i class="fa fa-microphone"></i>
   <span>Mute</span>`;
@@ -182,7 +187,7 @@ const setMuteButton = () => {
 $("#leave-meeting").on("click", () => {
   const uId = document.querySelectorAll('video')[0].getAttribute('data-peer-id');
   console.log("Video thumbnail to remove: ", uId);
-  let url = `${baseURL}:${port}/homepage.html`;
+  let url = `${baseURL}:${port}/thankyoupage.html`;
   window.location.href = url;
 });
 
@@ -222,7 +227,7 @@ socket.on("fileUploaded", (fileInfo) => {
 });
 
 function toggleChat() {
-  IS_SHOW_CHAT = !IS_SHOW_CHAT; // Toggle between "true" and "false"
+  IS_SHOW_CHAT = !IS_SHOW_CHAT; 
   updateUI();
 }
 
@@ -235,5 +240,13 @@ function updateUI() {
   // console.log("isShowChat", isShowChat, uId, userName, startTime, endTime,);
 }
 
-const toggleButton = document.getElementById('toggleButton');
-toggleButton.addEventListener('click', toggleChat);
+// const toggleButton = document.getElementById('toggleButton');
+// toggleButton.addEventListener('click', toggleChat);
+
+// Reload the page when meeting ends
+socket.on('meetingEnded', () => {
+  console.log('Meeting has ended. Reloading the page...');
+  let url = `${baseURL}:${port}/thankyoupage.html`;
+  window.location.href = url;
+});
+

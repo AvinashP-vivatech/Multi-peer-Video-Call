@@ -1,11 +1,20 @@
 const express = require("express");
 const app = express();
-const https = require("https");
+const https = require("https"); //for server
+// const https = require("http"); //for local
 const fs = require('fs');
+
+//for server
 const options = {
   key: fs.readFileSync('./ssl/privkey.pem'),
   cert: fs.readFileSync('./ssl/fullchain.pem')
   };
+
+//for local
+// const options = {
+//   key: null,
+//   cert: null
+//   };
 const { v4: uuidv4 } = require("uuid");
 const server = https.createServer(options, app);
 const io = require("socket.io")(server);
@@ -39,13 +48,6 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'homepage.html'));
 });
 
-// app.get("/", (req, rsp) => {
-//   rsp.redirect(`/${uuidv4()}`);
-// });
-
-// app.get("/:room", (req, res) => {
-//   res.render("room", { roomId: req.params.room });
-// });
 app.get("/:room", (req, res) => {
   res.render("room", {
     roomId: req.params.room,
@@ -58,7 +60,7 @@ app.get("/:room", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  let tempUser, tempRoom, tempChat, tempUID, tempUName, tempSTime, tempETime;
+  let tempUser, tempRoom, tempChat, tempUID, tempUName, tempSTime, tempETime, endTimeInterval;
 
   socket.on("join-room", (roomId, userId, IS_SHOW_CHAT, USER_ID, USER_NAME, START_TIME, END_TIME) => {
     tempUser = userId;
@@ -70,6 +72,20 @@ io.on("connection", (socket) => {
     tempETime = END_TIME;
 
     socket.join(roomId);
+    // Set interval to check if meeting end time is reached
+    endTimeInterval = setInterval(() => {
+      const currentTime = new Date();
+      const [endHour, endMinute] = END_TIME.split(':').map(Number);
+      const endTime = new Date(currentTime);
+      endTime.setHours(endHour, endMinute, 0, 0);
+
+      if (currentTime >= endTime) {
+        console.log(`Room ${roomId} meeting time has ended. Closing socket connections.`);
+        io.to(roomId).emit('meetingEnded'); 
+        clearInterval(endTimeInterval); 
+      }
+    }, 1000);
+
     socket.to(roomId).broadcast.emit("user-connected", userId);
 
     socket.on("disconnect-user", (uId) => {
@@ -97,7 +113,8 @@ io.on("connection", (socket) => {
         }
         io.to(roomId).emit('fileUploaded', fileInfo);
       });
-    });
+    }); 
+
   });
 
   socket.on("disconnect", () => {

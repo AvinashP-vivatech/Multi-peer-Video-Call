@@ -147,3 +147,30 @@ video {
 .send-icon:hover {
   color: #f0f0f0; /* Lighter shade of white on hover */
 }
+
+.thank-you-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+.page{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f4f8;
+}
+
+.thank-you-content h1 {
+  font-size: 2.5em;
+  color: #333333;
+  margin-bottom: 20px;
+}
