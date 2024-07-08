@@ -12,11 +12,24 @@ const baseURL = "https://mhealth.vivatechrnd.com"; //for server
 const port = 3030;
 const allpeers = {};
 
-var peer = new Peer(undefined, {
-  path: "/peerjs",
-  host: "/",
-  port: "3030",
+var peer = new Peer({
+  "iceServers": [
+    //  {
+    //      "urls": 'stun:stun2.l.google.com:19302'
+    //  },
+     {
+         'urls': 'turn:punamsah.com.np:3478',
+            'username': 'turnweb',
+            'credential': 'b@@n0123'
+     },
+ ],
+
+}, {
+path: "/peerjs",
+host: "/",
+port: "3030",
 });
+
 
 let myVideoStream;
 
@@ -61,7 +74,11 @@ navigator.mediaDevices
       all_messages.append(li);
       main__chat__window.scrollTop = main__chat__window.scrollHeight;
     });
+  }).catch(() => {
+      alert("User media problem");
+      console.log("user is not connected");
   });
+            
 
 peer.on("call", function (call) {
   getUserMedia(
@@ -237,11 +254,11 @@ function updateUI() {
 
   const mainLeft = document.querySelector('.main__left');
   mainLeft.classList.toggle('flex_full', !IS_SHOW_CHAT);
-  // console.log("isShowChat", isShowChat, uId, userName, startTime, endTime,);
+  console.log("isShowChat", isShowChat, uId, userName, startTime, endTime,);
 }
 
-// const toggleButton = document.getElementById('toggleButton');
-// toggleButton.addEventListener('click', toggleChat);
+const toggleButton = document.getElementById('toggleButton');
+toggleButton.addEventListener('click', toggleChat);
 
 // Reload the page when meeting ends
 socket.on('meetingEnded', () => {

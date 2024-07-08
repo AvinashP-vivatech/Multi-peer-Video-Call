@@ -3,13 +3,32 @@ const app = express();
 const https = require("https"); //for server
 // const https = require("http"); //for local
 const fs = require('fs');
+const winston = require('winston');
+
 
 //for server
 const options = {
   key: fs.readFileSync('./ssl/privkey.pem'),
   cert: fs.readFileSync('./ssl/fullchain.pem')
   };
-
+  const logsDir = path.join(__dirname, 'logs');
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir);
+  }
+  // Create a Winston logger
+  const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.printf(({ timestamp, level, message }) => `${timestamp} ${level}: ${message}`)
+    ),
+    transports: [
+      new winston.transports.Console(),
+     // new winston.transports.File({ filename: path.join(__dirname, 'logs', 'app.log') })
+     new winston.transports.File({ filename: path.join(logsDir, 'app.log') })
+    ],
+  });
+  
 //for local
 // const options = {
 //   key: null,
@@ -61,8 +80,10 @@ app.get("/:room", (req, res) => {
 
 io.on("connection", (socket) => {
   let tempUser, tempRoom, tempChat, tempUID, tempUName, tempSTime, tempETime, endTimeInterval;
+  logger.info('New socket connection');
 
   socket.on("join-room", (roomId, userId, IS_SHOW_CHAT, USER_ID, USER_NAME, START_TIME, END_TIME) => {
+    logger.info(`User ${USER_NAME} (ID: ${USER_ID}) joined room ${roomId}`);
     tempUser = userId;
     tempRoom = roomId;
     tempChat = IS_SHOW_CHAT;
@@ -81,6 +102,7 @@ io.on("connection", (socket) => {
 
       if (currentTime >= endTime) {
         console.log(`Room ${roomId} meeting time has ended. Closing socket connections.`);
+        logger.info(`Meeting in room ${roomId} ended at ${END_TIME}`);
         io.to(roomId).emit('meetingEnded'); 
         clearInterval(endTimeInterval); 
       }
@@ -90,6 +112,7 @@ io.on("connection", (socket) => {
 
     socket.on("disconnect-user", (uId) => {
       socket.to(roomId).broadcast.emit("user-disconnected", uId);
+      logger.info(`User ${uId} disconnected from room ${roomId}`);
     });
 
     socket.on("message", (messageData) => {
@@ -118,8 +141,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+    logger.info('Socket disconnected');
     socket.to(tempRoom).broadcast.emit("test-disconnect", tempUser);
   });
 });
 
-server.listen(process.env.PORT || 3030);
+server.listen(process.env.PORT || 3030, () => {
+  logger.info(`Server running on port ${process.env.PORT || 3030}`);
+});
+
