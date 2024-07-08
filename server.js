@@ -11,7 +11,21 @@ const options = {
   key: fs.readFileSync('./ssl/privkey.pem'),
   cert: fs.readFileSync('./ssl/fullchain.pem')
   };
-  const logsDir = path.join(__dirname, 'logs');
+  
+//for local
+// const options = {
+//   key: null,
+//   cert: null
+//   };
+const { v4: uuidv4 } = require("uuid");
+const server = https.createServer(options, app);
+const io = require("socket.io")(server);
+const path = require('path');
+const mysql = require('mysql2');
+const bodyParser = require('body-parser');
+
+
+const logsDir = path.join(__dirname, 'logs');
   if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir);
   }
@@ -28,18 +42,6 @@ const options = {
      new winston.transports.File({ filename: path.join(logsDir, 'app.log') })
     ],
   });
-  
-//for local
-// const options = {
-//   key: null,
-//   cert: null
-//   };
-const { v4: uuidv4 } = require("uuid");
-const server = https.createServer(options, app);
-const io = require("socket.io")(server);
-const path = require('path');
-const mysql = require('mysql2');
-const bodyParser = require('body-parser');
 // Peer
 
 const { ExpressPeerServer } = require("peer");
